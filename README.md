@@ -93,6 +93,8 @@ python demo.py 群号 群名
 
 ## 生成结果例:
 
+![image](https://github.com/chinosk114514/wordCloud_API/blob/master/Images/1029108019.jpg)
+
 
 
 [1]: https://github.com/fuqiuai/wordCloud
