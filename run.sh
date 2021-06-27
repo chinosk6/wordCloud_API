@@ -1,0 +1,1 @@
+nohup python -u apprun.py > wc.log 2>&1 &
