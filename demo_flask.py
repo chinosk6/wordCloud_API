@@ -33,7 +33,7 @@ def generate(groupnum:int, groupname:str):
             #except:
              #   print("fail", text_p)
               #  continue
-            if("<?xml version=" not in text_p):
+            if(("<?xml version=" not in text_p) and (t['QQ'] not in settings.ignore_id)):
                 text = text + " " + text_p
 
         text = chnSegment.word_segment(text)#中文分词
