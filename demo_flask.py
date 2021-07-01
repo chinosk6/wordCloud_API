@@ -10,7 +10,7 @@ import time
 from pymysql import OperationalError
 import settings
 
-def generate(groupnum:int, groupname:str):
+def generate(groupnum:int, groupname:str, bg, bgtext, pkey):
 
     stat = connect_database.get_text(groupnum)
     
@@ -38,26 +38,49 @@ def generate(groupnum:int, groupname:str):
 
         text = chnSegment.word_segment(text)#中文分词
 
-    plotWordcloud.generate_wordcloud(text, str(groupnum), groupname)
+    plotWordcloud.generate_wordcloud(text, str(groupnum), groupname, bg, bgtext, pkey)
+    return(len(text_g))
 
 #generate(1029108019, "Arcaea重金属超标群")
 
-def out(groupnum:int, groupname:str):
+def out(groupnum:int, groupname:str, bg:str, bgtext:str, pkey:str):
     try:
         #generate(1029108019, "Arcaea重金属超标群")
-        generate(groupnum, groupname)
+        num = generate(groupnum, groupname, bg, bgtext, pkey)
 
-        写配置项("stat.ini", "wcstat", str(groupnum), '0') #0-处理完成
+        写配置项("stat.ini", "wcstat", str(groupnum) + pkey, '0') #0-处理完成
 
-        if(os.path.isfile(sys.path[0] + "/Images/" + str(groupnum) + ".jpg") == True):
+        if(os.path.isfile(sys.path[0] + "/Images/" + str(groupnum) + pkey + ".jpg") == True):
             print("处理完成")
-            写配置项("stat.ini", "wctime", str(groupnum), str(int(time.time())))
+            写配置项("stat.ini", "wctime", str(groupnum) + pkey, str(int(time.time())))
+            写配置项("stat.ini", "wcstat", str(groupnum) + pkey, "共处理:" + str(num) + "条消息。")
         else:
             print("Oserr")
-            写配置项("stat.ini", "wcstat", str(groupnum), "OSError: [Errno 2] No such file or directory") #非0/1，输出错误信息
+            写配置项("stat.ini", "wcstat", str(groupnum) + pkey, "OSError: [Errno 2] No such file or directory") #非0/1，输出错误信息
 
     except Exception as sb:
-        写配置项("stat.ini", "wctime", str(groupnum), str(int(time.time()) - settings.cold + 60))
-        写配置项("stat.ini", "wcstat", str(groupnum), repr(sb)) #非0/1，输出错误信息
+        写配置项("stat.ini", "wctime", str(groupnum) + pkey, str(int(time.time()) - settings.cold + 60))
+        写配置项("stat.ini", "wcstat", str(groupnum) + pkey, repr(sb)) #非0/1，输出错误信息
+        print("完成:")
+        print(repr(sb))
+
+
+
+def jsonout(bg:str, jsonlist:list, pkey:str):
+    try:
+        
+        plotWordcloud.generate_jsoncloud(jsonlist, bg, pkey)
+        写配置项("stat.ini", "wcstat", pkey, '0') #0-处理完成
+
+        if(os.path.isfile(sys.path[0] + "/Images/" + pkey + ".png") == True):
+            print("处理完成")
+            写配置项("stat.ini", "wctime", pkey, str(int(time.time())))
+        else:
+            print("OSerr")
+            写配置项("stat.ini", "wcstat", pkey, "OSError: [Errno 2] No such file or directory") #非0/1，输出错误信息
+
+    except Exception as sb:
+        写配置项("stat.ini", "wctime", pkey, str(int(time.time()) - settings.jcold + 60))
+        写配置项("stat.ini", "wcstat", pkey, repr(sb)) #非0/1，输出错误信息
         print("完成:")
         print(repr(sb))
